@@ -27,6 +27,7 @@ const foo = async () => {
         const folders = await fs.readdir(baseFolderPath);
         for (const folder of folders) {
             const folderPath = path.join(baseFolderPath, folder);
+            // Отримуємо інформацію про папку (чи є це директорія)
             const stat = await fs.stat(folderPath);
             // Виводимо шлях до папки і чи є це директорія
             console.log(`${folderPath} isDirectory: ${stat.isDirectory()}`);
