@@ -8,12 +8,12 @@ const fs = require('node:fs/promises');
 const createFolderAndFiles = async () => {
 
     const baseFolder = path.join(__dirname, 'baseFolder');
-    await fs.mkdir(baseFolder);
+    await fs.mkdir(baseFolder, {recursive:true});
     const folderNames = ['folder1', 'folder2', 'folder3', 'folder4', 'folder5'];
 
     for (const folderName of folderNames) {
         const folderPath = path.join(baseFolder, folderName);
-        await fs.mkdir(folderPath);
+        await fs.mkdir(folderPath, {recursive:true});
 
         const fileNames = ['file1.txt', 'file2.txt', 'file3.txt', 'file4.txt', 'file5.txt'];
 
