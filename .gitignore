@@ -40,3 +40,14 @@ next-env.d.ts
 /.idea/inspectionProfiles/Project_Default.xml
 /.idea/vcs.xml
 /.idea/jsLibraryMappings.xml
+/dist/errors/api.error.js
+/eslint.config.mjs
+/dist/services/fs.service.js
+/dist/main.js
+/dist/controllers/user.controller.js
+/dist/interfaces/user.interface.js
+/dist/repositories/user.repository.js
+/dist/routers/user.router.js
+/dist/services/user.service.js
+/dist
+
