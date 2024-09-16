@@ -13,6 +13,8 @@ const os = require('node:os');
 // Імпорт екземпляра emitter з власного модуля './emiter'
 const {emitter} = require('./emiter');
 
+const EventEmitter = require('node:events');
+
 
 // Асинхронна функція
 const foo = async () => {
@@ -123,6 +125,30 @@ const foo = async () => {
     emitter.emit('test2', 'SSS', 'WWWWW', 111)
     emitter.emit('create_user', {name: 'maks', age: 28})
     emitter.emit('create_user', {name: 'Dima', age: 28})
+
+    const emitter2 = new EventEmitter();
+    emitter.on('event2', () => {
+        console.log('Event happened')
+    })
+    emitter2.emit('event2')
+    emitter2.emit('event2')
+    emitter2.emit('event2')
+    emitter2.emit('event2')
+    emitter2.emit('event2')
+    emitter2.emit('event2')
+    emitter2.once('event2', (...args) => {
+        console.log('________________');
+        console.log('Event 1 happened');
+        console.log(args)
+        console.log('________________');
+    })
+    emitter.on('event2', (...args) => {
+        console.log('Event 2 happened')
+        console.log(args)
+    })
+    emitter.emit('event2', 'Hello', 345, 44)
+    emitter.emit('event2')
+    emitter.emit('event2', 555)
 }
 
 // Виклик асинхронної функції
