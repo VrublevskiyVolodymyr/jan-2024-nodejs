@@ -1,7 +1,9 @@
 const express = require('express')
 const {read, write} = require('./fs.service')
 const app = express()
+//підключення мідлвари для роботи з JSON
 app.use(express.json())
+//підключення мідлвари для роботи з формами
 app.use(express.urlencoded({extended: true}))
 
 
