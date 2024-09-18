@@ -19,9 +19,7 @@ class UserRepository {
   }
 
   public async updateById(userId: string, dto: IUser): Promise<IUser> {
-    return await User.findByIdAndUpdate(userId, dto, {
-      returnDocument: "after",
-    });
+    return await User.findByIdAndUpdate(userId, dto, { new: true });
   }
 
   public async deleteById(userId: string): Promise<void> {
