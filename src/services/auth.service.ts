@@ -1,6 +1,6 @@
 import { ApiError } from "../errors/api.error";
 import { ITokenPair, ITokenPayload } from "../interfaces/token.interface";
-import { IUser } from "../interfaces/user.interface";
+import { ISignIn, IUser } from "../interfaces/user.interface";
 import { tokenRepository } from "../repositories/token.repository";
 import { userRepository } from "../repositories/user.repository";
 import { passwordService } from "./password.service";
@@ -23,7 +23,9 @@ class AuthService {
     return { user, tokens };
   }
 
-  public async signIn(dto: any): Promise<{ user: IUser; tokens: ITokenPair }> {
+  public async signIn(
+    dto: ISignIn,
+  ): Promise<{ user: IUser; tokens: ITokenPair }> {
     const user = await userRepository.getByParams({ email: dto.email });
     if (!user) {
       throw new ApiError("Invalid credentials", 401);
