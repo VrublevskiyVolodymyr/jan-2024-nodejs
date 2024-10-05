@@ -2,14 +2,17 @@ import express, { NextFunction, Request, Response } from "express";
 import * as mongoose from "mongoose";
 
 import { configs } from "./configs/configs";
+import { cronRunner } from "./crones";
 import { ApiError } from "./errors/api.error";
 import { authRouter } from "./routers/auth.router";
 import { userRouter } from "./routers/user.router";
 
 const app = express();
 
+// process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// app.use(express.urlencoded({ extended: true }));
 
 app.use((req: Request, res: Response, next: NextFunction) => {
   console.log(`${req.method} ${req.path}`);
@@ -35,5 +38,6 @@ process.on("uncaughtException", (e) => {
 
 app.listen(configs.APP_PORT, configs.APP_HOST, async () => {
   await mongoose.connect(configs.MONGO_URL);
+  cronRunner();
   console.log(`Server is running on port ${configs.APP_PORT}`);
 });

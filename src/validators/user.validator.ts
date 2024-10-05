@@ -8,6 +8,7 @@ export class UserValidator {
   private static email = joi.string().lowercase().regex(regexConstant.EMAIL);
   private static password = joi.string().regex(regexConstant.PASSWORD).trim();
   private static phone = joi.string().regex(regexConstant.PHONE);
+  private static token = joi.string().min(3).trim();
 
   public static createUser = joi.object({
     name: this.name.required(),
@@ -26,6 +27,16 @@ export class UserValidator {
 
   public static login = joi.object({
     email: this.email.required(),
+    password: this.password.required(),
+  });
+
+  public static forgotPassword = joi.object({
+    password: this.password.required(),
+    token: this.token.required(),
+  });
+
+  public static changePassword = joi.object({
+    oldPassword: this.password.required(),
     password: this.password.required(),
   });
 }

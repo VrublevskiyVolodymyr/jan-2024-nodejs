@@ -21,6 +21,18 @@ router.put(
   userMiddleware.isBodyValid(UserValidator.updateUser),
   userController.update,
 );
+
+router.get("/me", authMiddleware.checkAccessToken, userController.getMe);
+
+router.put(
+  "/me",
+  authMiddleware.checkAccessToken,
+  userMiddleware.isBodyValid(UserValidator.updateUser),
+  userController.updateMe,
+);
+
+router.delete("/me", authMiddleware.checkAccessToken, userController.deleteMe);
+
 router.delete(
   "/:userId",
   userMiddleware.isIdValid("userId"),
