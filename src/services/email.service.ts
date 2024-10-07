@@ -1,7 +1,6 @@
-import path from "node:path";
-
 import nodemailer, { Transporter } from "nodemailer";
 import hbs from "nodemailer-express-handlebars";
+import path from "path";
 
 import { configs } from "../configs/configs";
 import { emailConstant } from "../constants/email.constant";
