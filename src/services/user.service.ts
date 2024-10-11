@@ -1,7 +1,10 @@
+import { UploadedFile } from "express-fileupload";
+
 import { ApiError } from "../errors/api.error";
 import { ITokenPayload } from "../interfaces/token.interface";
 import { IUser } from "../interfaces/user.interface";
 import { userRepository } from "../repositories/user.repository";
+import { s3Service } from "./s3.service";
 
 class UserService {
   public async getList(): Promise<IUser[]> {
@@ -29,6 +32,32 @@ class UserService {
 
   public async updateById(userId: string, dto: IUser): Promise<IUser> {
     return await userRepository.updateById(userId, dto);
+  }
+
+  public async uploadAvatar(
+    userId: string,
+    file: UploadedFile,
+  ): Promise<IUser> {
+    const user = await userRepository.getById(userId);
+    const avatar = await s3Service.uploadFile("user", userId, file);
+
+    const updatedUser = await userRepository.updateById(userId, { avatar });
+
+    if (user.avatar) {
+      await s3Service.deleteFile(user.avatar);
+    }
+
+    return updatedUser;
+  }
+
+  public async deleteAvatar(userId: string): Promise<IUser> {
+    const user = await userRepository.getById(userId);
+
+    if (user.avatar) {
+      await s3Service.deleteFile(user.avatar);
+    }
+
+    return await userRepository.updateById(userId, { avatar: null });
   }
 
   public async deleteById(userId: string): Promise<void> {

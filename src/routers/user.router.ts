@@ -1,7 +1,9 @@
 import { Router } from "express";
 
+import { avatarConfig } from "../constants/image.constant";
 import { userController } from "../controllers/user.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
+import { fileMiddleware } from "../middlewares/file.middleware";
 import { userMiddleware } from "../middlewares/user.middleware";
 import { UserValidator } from "../validators/user.validator";
 
@@ -29,6 +31,19 @@ router.put(
   authMiddleware.checkAccessToken,
   userMiddleware.isBodyValid(UserValidator.updateUser),
   userController.updateMe,
+);
+
+router.post(
+  "/me/avatar",
+  authMiddleware.checkAccessToken,
+  fileMiddleware.isFileValid("avatar", avatarConfig),
+  userController.uploadAvatar,
+);
+
+router.delete(
+  "/me/avatar",
+  authMiddleware.checkAccessToken,
+  userController.deleteAvatar,
 );
 
 router.delete("/me", authMiddleware.checkAccessToken, userController.deleteMe);

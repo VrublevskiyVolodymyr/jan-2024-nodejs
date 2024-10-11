@@ -1,4 +1,5 @@
 import express, { NextFunction, Request, Response } from "express";
+import fileupload from "express-fileupload";
 import * as mongoose from "mongoose";
 
 import { configs } from "./configs/configs";
@@ -12,8 +13,8 @@ const app = express();
 // process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 app.use(express.json());
-// app.use(express.urlencoded({ extended: true }));
-
+app.use(express.urlencoded({ extended: true }));
+app.use(fileupload());
 app.use((req: Request, res: Response, next: NextFunction) => {
   console.log(`${req.method} ${req.path}`);
   next();
