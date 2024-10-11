@@ -1,9 +1,29 @@
+import { UploadedFile } from "express-fileupload";
+
+import { ApiError } from "../errors/api.error";
+import { ITokenPayload } from "../interfaces/token.interface";
 import { IUser } from "../interfaces/user.interface";
 import { userRepository } from "../repositories/user.repository";
+import { s3Service } from "./s3.service";
 
 class UserService {
   public async getList(): Promise<IUser[]> {
     return await userRepository.getList();
+  }
+
+  public async getMe(jwtPayload: ITokenPayload): Promise<IUser> {
+    const user = await userRepository.getById(jwtPayload.userId);
+    if (!user) {
+      throw new ApiError("User not found", 404);
+    }
+    return user;
+  }
+  public async updateMe(jwtPayload: ITokenPayload, dto: IUser): Promise<IUser> {
+    return await userRepository.updateById(jwtPayload.userId, dto);
+  }
+
+  public async deleteMe(jwtPayload: ITokenPayload): Promise<void> {
+    return await userRepository.deleteById(jwtPayload.userId);
   }
 
   public async getById(userId: string): Promise<IUser> {
@@ -12,6 +32,32 @@ class UserService {
 
   public async updateById(userId: string, dto: IUser): Promise<IUser> {
     return await userRepository.updateById(userId, dto);
+  }
+
+  public async uploadAvatar(
+    userId: string,
+    file: UploadedFile,
+  ): Promise<IUser> {
+    const user = await userRepository.getById(userId);
+    const avatar = await s3Service.uploadFile("user", userId, file);
+
+    const updatedUser = await userRepository.updateById(userId, { avatar });
+
+    if (user.avatar) {
+      await s3Service.deleteFile(user.avatar);
+    }
+
+    return updatedUser;
+  }
+
+  public async deleteAvatar(userId: string): Promise<IUser> {
+    const user = await userRepository.getById(userId);
+
+    if (user.avatar) {
+      await s3Service.deleteFile(user.avatar);
+    }
+
+    return await userRepository.updateById(userId, { avatar: null });
   }
 
   public async deleteById(userId: string): Promise<void> {
