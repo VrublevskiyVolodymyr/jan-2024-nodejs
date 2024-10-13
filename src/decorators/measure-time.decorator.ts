@@ -16,6 +16,5 @@ export const MeasureExecutionTime = (
       );
     }
   };
-
   return descriptor;
 };
