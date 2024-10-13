@@ -1,21 +1,39 @@
 import { configs } from "../configs/configs";
-import { IUser } from "../interfaces/user.interface";
+import {
+  IUser,
+  IUserListQuery,
+  IUserListResponse,
+  IUserResponse,
+} from "../interfaces/user.interface";
 
 export class UserPresenter {
-  public static toResponse(data: IUser) {
+  public toPublicResDto(entity: IUser): IUserResponse {
     return {
-      _id: data._id,
-      name: data.name,
-      age: data.age,
-      email: data.email,
-      phone: data.phone,
-      avatar: data.avatar
-        ? `${configs.AWS_ENDPOINT_URL}/${configs.AWS_BUCKET_NAME}/${data.avatar}`
+      _id: entity._id,
+      name: entity.name,
+      email: entity.email,
+      age: entity.age,
+      role: entity.role,
+      avatar: entity.avatar
+        ? `${configs.AWS_ENDPOINT_URL}/${entity.avatar}`
         : null,
-      role: data.role,
-      isVerified: data.isVerified,
-      createdAt: data.createdAt,
-      updatedAt: data.updatedAt,
+      isDeleted: entity.isDeleted,
+      isVerified: entity.isVerified,
+      createdAt: entity.createdAt,
+    };
+  }
+
+  public toListResDto(
+    entities: IUser[],
+    total: number,
+    query: IUserListQuery,
+  ): IUserListResponse {
+    return {
+      data: entities.map(this.toPublicResDto),
+      total,
+      ...query,
     };
   }
 }
+
+export const userPresenter = new UserPresenter();

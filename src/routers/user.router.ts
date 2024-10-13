@@ -9,7 +9,12 @@ import { UserValidator } from "../validators/user.validator";
 
 const router = Router();
 
-router.get("/", userController.getList);
+router.get(
+  "/",
+  userMiddleware.isQueryValid(UserValidator.listQuery),
+  userController.getList,
+);
+
 router.get(
   "/:userId",
   userMiddleware.isIdValid("userId"),

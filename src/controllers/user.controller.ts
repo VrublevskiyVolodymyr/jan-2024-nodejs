@@ -1,15 +1,18 @@
 import { NextFunction, Request, Response } from "express";
 import { UploadedFile } from "express-fileupload";
 
+import { MeasureExecutionTime } from "../decorators/measure-time.decorator";
 import { ITokenPayload } from "../interfaces/token.interface";
-import { IUser } from "../interfaces/user.interface";
-import { UserPresenter } from "../presenters/user.presenter";
+import { IUser, IUserListQuery } from "../interfaces/user.interface";
+import { userPresenter } from "../presenters/user.presenter";
 import { userService } from "../services/user.service";
 
 class UserController {
+  @MeasureExecutionTime
   public async getList(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await userService.getList();
+      const query = req.query as unknown as IUserListQuery;
+      const result = await userService.getList(query);
       res.json(result);
     } catch (e) {
       next(e);
@@ -69,10 +72,11 @@ class UserController {
 
   public async uploadAvatar(req: Request, res: Response, next: NextFunction) {
     try {
-      const avatar = req.files?.avatar as UploadedFile;
-      const userId = req.res.locals.jwtPayload.userId as string;
-      const user = await userService.uploadAvatar(userId, avatar);
-      const result = UserPresenter.toResponse(user);
+      const jwtPayload = req.res.locals.jwtPayload as ITokenPayload;
+      const avatar = req.files.avatar as UploadedFile;
+
+      const user = await userService.uploadAvatar(jwtPayload, avatar);
+      const result = userPresenter.toPublicResDto(user);
       res.status(201).json(result);
     } catch (e) {
       next(e);
@@ -81,9 +85,10 @@ class UserController {
 
   public async deleteAvatar(req: Request, res: Response, next: NextFunction) {
     try {
-      const userId = req.res.locals.jwtPayload.userId as string;
-      const user = await userService.deleteAvatar(userId);
-      const result = UserPresenter.toResponse(user);
+      const jwtPayload = req.res.locals.jwtPayload as ITokenPayload;
+
+      const user = await userService.deleteAvatar(jwtPayload);
+      const result = userPresenter.toPublicResDto(user);
       res.status(201).json(result);
     } catch (e) {
       next(e);

@@ -1,14 +1,21 @@
 import { UploadedFile } from "express-fileupload";
 
+import { FileItemTypeEnum } from "../enums/file-item-type.enum";
 import { ApiError } from "../errors/api.error";
 import { ITokenPayload } from "../interfaces/token.interface";
-import { IUser } from "../interfaces/user.interface";
+import {
+  IUser,
+  IUserListQuery,
+  IUserListResponse,
+} from "../interfaces/user.interface";
+import { userPresenter } from "../presenters/user.presenter";
 import { userRepository } from "../repositories/user.repository";
 import { s3Service } from "./s3.service";
 
 class UserService {
-  public async getList(): Promise<IUser[]> {
-    return await userRepository.getList();
+  public async getList(query: IUserListQuery): Promise<IUserListResponse> {
+    const [entities, total] = await userRepository.getList(query);
+    return userPresenter.toListResDto(entities, total, query);
   }
 
   public async getMe(jwtPayload: ITokenPayload): Promise<IUser> {
@@ -35,29 +42,30 @@ class UserService {
   }
 
   public async uploadAvatar(
-    userId: string,
+    jwtPayload: ITokenPayload,
     file: UploadedFile,
   ): Promise<IUser> {
-    const user = await userRepository.getById(userId);
-    const avatar = await s3Service.uploadFile("user", userId, file);
+    const user = await userRepository.getById(jwtPayload.userId);
 
-    const updatedUser = await userRepository.updateById(userId, { avatar });
-
+    const avatar = await s3Service.uploadFile(
+      file,
+      FileItemTypeEnum.USER,
+      user._id,
+    );
+    const updatedUser = await userRepository.updateById(user._id, { avatar });
     if (user.avatar) {
       await s3Service.deleteFile(user.avatar);
     }
-
     return updatedUser;
   }
 
-  public async deleteAvatar(userId: string): Promise<IUser> {
-    const user = await userRepository.getById(userId);
+  public async deleteAvatar(jwtPayload: ITokenPayload): Promise<IUser> {
+    const user = await userRepository.getById(jwtPayload.userId);
 
     if (user.avatar) {
       await s3Service.deleteFile(user.avatar);
     }
-
-    return await userRepository.updateById(userId, { avatar: null });
+    return await userRepository.updateById(user._id, { avatar: null });
   }
 
   public async deleteById(userId: string): Promise<void> {
